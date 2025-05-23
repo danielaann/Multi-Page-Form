@@ -94,7 +94,11 @@ export const logout = async (req, res) => {
     }
 }
 
+<<<<<<< HEAD
 // Send OTP for email verification
+=======
+//Verify User Email
+>>>>>>> master
 export const sendVerifyOtp = async (req, res) => {
     try {
         const {userId} = req.body;
@@ -129,7 +133,10 @@ export const sendVerifyOtp = async (req, res) => {
     }
 } 
 
+<<<<<<< HEAD
 // Verify OTP for email verification
+=======
+>>>>>>> master
 export const verifyEmail = async (req, res) => {
     const { userId, otp } = req.body;
     if (!userId || !otp) {
@@ -137,6 +144,7 @@ export const verifyEmail = async (req, res) => {
     }
     
     try {
+<<<<<<< HEAD
         const user = await userModel.findById(userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
@@ -156,10 +164,13 @@ export const verifyEmail = async (req, res) => {
 
         await user.save();
         return res.status(200).json({ message: 'Email verified successfully' });
+=======
+>>>>>>> master
         
     } catch (error) {
         return res.status(500).json({ message: 'Internal server error in verifyEmail,authController' });
     }
+<<<<<<< HEAD
 }
 
 //Is user authenticated
@@ -238,3 +249,6 @@ export const resetPassword = async (req, res) => {
     }
 }
 
+=======
+}
+>>>>>>> master
