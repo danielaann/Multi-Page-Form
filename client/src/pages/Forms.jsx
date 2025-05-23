@@ -1,12 +1,67 @@
 import React, { useState } from 'react';
 import { useFormStore } from '../store/formStore';
 import { assets } from '../assets/assets';
+import { getFormData, saveFormData } from '../Api/formApi';
+import { useEffect } from 'react';
+
+
 
 const Form = () => {
   const [currentPage, setCurrentPage] = useState(1);
+  const { setPersonalInfo, setEducation, setProjects } = useFormStore();
 
   const nextPage = () => setCurrentPage((prev) => Math.min(prev + 1, 3));
   const prevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
+  
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const data = await getFormData();
+        if (data.personalInfo) setPersonalInfo(data.personalInfo);
+        if (data.education) setEducation(data.education);
+        if (data.projects) setProjects(data.projects);
+      } catch (err) {
+        console.error(err.message);
+      }
+    };
+    loadData();
+  }, []);
+
+
+  const handleSubmit = async () => {
+  const state = useFormStore.getState(); // ✅ Correct way to access store outside render
+  
+
+  try {
+    const { personalInfo, education, projects } = useFormStore.getState(); // use getState()
+    const userId = localStorage.getItem('userId');
+    
+  if (!userId) {
+    alert("User ID not found. Please log in or try again.");
+    return;
+  }
+    const data = {
+  userId,
+  personalInfo,
+  education,
+  projects
+};
+
+
+
+    console.log("Submitting data:", data); // DEBUG LOG
+
+    await saveFormData(data);
+
+    alert("Form submitted successfully!");
+  } catch (error) {
+    console.error("Error submitting form:", error);
+    alert("Submission failed.");
+  }
+};
+
+
 
   return (
     <div className="flex items-center justify-center min-h-screen px-6 sm:px-0 ">
@@ -22,9 +77,8 @@ const Form = () => {
               {[1, 2, 3].map((page) => (
                 <div
                   key={page}
-                  className={`h-2 w-2 rounded-full transition-all duration-300 ${
-                    currentPage === page ? 'bg-indigo-500 scale-125' : 'bg-gray-600'
-                  }`}
+                  className={`h-2 w-2 rounded-full transition-all duration-300 ${currentPage === page ? 'bg-indigo-500 scale-125' : 'bg-gray-600'
+                    }`}
                 />
               ))}
             </div>
@@ -37,24 +91,22 @@ const Form = () => {
           <button
             onClick={prevPage}
             disabled={currentPage === 1}
-            className={`w-[48%] py-2.5 rounded-full font-medium text-white transition-all duration-200 ${
-              currentPage === 1
+            className={`w-[48%] py-2.5 rounded-full font-medium text-white transition-all duration-200 ${currentPage === 1
                 ? 'bg-gray-600 cursor-not-allowed'
                 : 'bg-gradient-to-r from-indigo-500 to-indigo-900 hover:from-indigo-600 hover:to-indigo-950'
-            }`}
+              }`}
           >
             Previous
           </button>
           <button
-            onClick={nextPage}
-            disabled={currentPage === 3}
-            className={`w-[48%] py-2.5 rounded-full font-medium text-white transition-all duration-200 ${
-              currentPage === 3
-                ? 'bg-gray-600 cursor-not-allowed'
+            onClick={currentPage === 3 ? handleSubmit : nextPage}
+            disabled={false}
+            className={`w-[48%] py-2.5 rounded-full font-medium text-white transition-all duration-200 ${currentPage === 3
+                ? 'bg-indigo-700 hover:bg-indigo-800'
                 : 'bg-gradient-to-r from-indigo-500 to-indigo-900 hover:from-indigo-600 hover:to-indigo-950'
-            }`}
+              }`}
           >
-            Next
+            {currentPage === 3 ? 'Submit' : 'Next'}
           </button>
         </div>
       </div>
@@ -155,7 +207,7 @@ const PersonalInfoForm = () => {
           />
         </div>
         <div className="flex items-center gap-3 mb-4 w-full px-5 py-2.5 rounded-full bg-white">
-          <img src={assets.state_icon} alt="State icon" className='w-5 h-5'/>
+          <img src={assets.state_icon} alt="State icon" className='w-5 h-5' />
           <select
             name="state"
             value={personalInfo.state}

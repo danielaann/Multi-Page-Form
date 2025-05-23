@@ -15,11 +15,23 @@ export const useFormStore = create((set) => ({
     institution: ''
   },
   projects: [],
+
+  // Setters
   setPersonalInfo: (data) =>
     set((state) => ({ personalInfo: { ...state.personalInfo, ...data } })),
   setEducation: (data) =>
     set((state) => ({ education: { ...state.education, ...data } })),
   setProjects: (projects) => set({ projects }),
+
+  // Optional: Add project management
+  addProject: (project) =>
+    set((state) => ({ projects: [...state.projects, project] })),
+  removeProject: (index) =>
+    set((state) => ({
+      projects: state.projects.filter((_, i) => i !== index)
+    })),
+
+  // Reset
   reset: () =>
     set(() => ({
       personalInfo: {

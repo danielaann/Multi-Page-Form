@@ -9,16 +9,16 @@ const userAuth = (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         
         if (decoded.id){
-            req.body.userId = decoded.id;
+           req.user = { id: decoded.id };
+           next();
         }else{
             return res.status(401).json({ message: 'Unauthorized. Login Again' });
         }
 
-        next();
 
     } catch (error) {
         return res.status(401).json({ message: 'Unauthorized' });
     }
 }
 
-export default userAuth;
+export default userAuth; 
