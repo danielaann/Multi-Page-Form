@@ -94,7 +94,11 @@ export const logout = async (req, res) => {
     }
 }
 
+<<<<<<< HEAD
+// Send OTP for email verification
+=======
 //Verify User Email
+>>>>>>> master
 export const sendVerifyOtp = async (req, res) => {
     try {
         const {userId} = req.body;
@@ -129,6 +133,10 @@ export const sendVerifyOtp = async (req, res) => {
     }
 } 
 
+<<<<<<< HEAD
+// Verify OTP for email verification
+=======
+>>>>>>> master
 export const verifyEmail = async (req, res) => {
     const { userId, otp } = req.body;
     if (!userId || !otp) {
@@ -136,8 +144,111 @@ export const verifyEmail = async (req, res) => {
     }
     
     try {
+<<<<<<< HEAD
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (user.verifyOtp !== otp || user.verifyOtp === '') {
+            return res.status(400).json({ message: 'Invalid OTP' });
+        }
+
+        if (user.verifyOtpExpiresAT < Date.now()) {
+            return res.status(400).json({ message: 'OTP expired' });
+        }
+
+        user.isAccountVerified = true;
+        user.verifyOtp = '';
+        user.verifyOtpExpiresAT = 0;
+
+        await user.save();
+        return res.status(200).json({ message: 'Email verified successfully' });
+=======
+>>>>>>> master
         
     } catch (error) {
         return res.status(500).json({ message: 'Internal server error in verifyEmail,authController' });
     }
+<<<<<<< HEAD
 }
+
+//Is user authenticated
+export const isAuthenticated = async (req, res) => {
+    try {
+        return res.status(200).json({ message: 'User is authenticated', user });
+        
+    } catch (error) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+}
+
+//Send password reset OTP
+export const sendResetOtp = async (req, res) => {
+    const { email } = req.body;
+    if (!email) {
+        return res.status(400).json({ message: 'Please enter valid Email' });
+    }
+    try {
+        const user = await userModel.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const otp = String(Math.floor(100000 + Math.random() * 900000)); // Generate a 6-digit OTP
+
+        user.resetOtp = otp;
+        user.resetOtpExpiresAT = Date.now() + 15 * 60 * 1000 // OTP valid for 15mins
+        
+        await user.save();
+        const mailOptions = {
+            from: process.env.SENDER_EMAIL,
+            to: user.email,
+            subject: 'Reset Your Password',
+            text: `Your OTP for password reset is ${otp}. It is valid for 15 minutes. Use it to reset your password.`,
+        };
+
+        await transporter.sendMail(mailOptions);
+        return res.status(200).json({ message: 'OTP sent for password reset', email });
+    } catch (error) {
+        return res.status(500).json({ message: 'Internal server error in sendResetOtp,authController' });
+    }
+}
+
+//Reset User Password
+export const resetPassword = async (req, res) => {
+    const { email, otp, newPassword } = req.body;
+
+    if (!email || !otp || !newPassword) {
+        return res.status(400).json({ message: 'Please fill all the fields' });
+    }
+    try {
+        const user = await userModel.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (user.resetOtp !== otp || user.resetOtp === '') {
+            return res.status(400).json({ message: 'Invalid OTP' });
+        }
+
+        if (user.resetOtpExpiresAT < Date.now()) {
+            return res.status(400).json({ message: 'OTP expired' });
+        }
+
+        const hashedPassword = await bycrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+        user.resetOtp = '';
+        user.resetOtpExpiresAT = 0;
+
+        await user.save();
+        return res.status(200).json({ message: 'Password has been reset successfully' });
+        
+    } catch (error) {
+        return res.status(500).json({ message: 'Internal server error in resetPassword,authController' });
+    }
+}
+
+=======
+}
+>>>>>>> master
